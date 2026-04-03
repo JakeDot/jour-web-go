@@ -1,5 +1,5 @@
 {
-  "name": "",
-  "description": "",
+  "name": "Jourwigo Web Interface",
+  "description": "Web interface for Jourwigo, a library for Wherigo Development.",
   "requestFramePermissions": []
 }
