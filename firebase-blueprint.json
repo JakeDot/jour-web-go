@@ -1,0 +1,24 @@
+{
+  "entities": {
+    "Cartridge": {
+      "title": "Cartridge",
+      "description": "A Wherigo cartridge metadata and state.",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "description": { "type": "string" },
+        "author": { "type": "string" },
+        "luaCode": { "type": "string" },
+        "ownerId": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["name", "luaCode", "ownerId"]
+    }
+  },
+  "firestore": {
+    "/cartridges/{cartridgeId}": {
+      "schema": "Cartridge",
+      "description": "Stored Wherigo cartridges."
+    }
+  }
+}

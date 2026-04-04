@@ -1,0 +1,35 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // ===============================================================
+    // Helper Functions
+    // ===============================================================
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+    function isDocOwner() {
+      return isAuthenticated() && request.auth.uid == resource.data.ownerId;
+    }
+    function hasRequiredFields(fields) {
+      return request.resource.data.keys().hasAll(fields);
+    }
+    function isValidCartridge(data) {
+      return data.name is string && data.name.size() > 0 && data.name.size() < 100 &&
+             data.luaCode is string && data.luaCode.size() > 0 && data.luaCode.size() < 1000000 &&
+             data.ownerId == request.auth.uid;
+    }
+
+    // ===============================================================
+    // Rules
+    // ===============================================================
+    match /cartridges/{cartridgeId} {
+      allow read: if isAuthenticated() && (isDocOwner() || resource.data.public == true);
+      allow create: if isAuthenticated() && isValidCartridge(request.resource.data);
+      allow update: if isAuthenticated() && isDocOwner() && isValidCartridge(request.resource.data);
+      allow delete: if isAuthenticated() && isDocOwner();
+    }
+  }
+}

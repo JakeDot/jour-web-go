@@ -30,12 +30,17 @@ import {
   Camera,
   Search,
   Heart,
-  Trophy
+  Trophy,
+  Cloud,
+  Smartphone
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 import defaultLogicLua from '../lib/default-logic.lua?raw';
+import { db, auth } from '../firebase';
+import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
 
 function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -206,6 +211,30 @@ export default function WherigoApp() {
     }
   };
 
+  const handleSaveToCloud = async () => {
+    if (!auth.currentUser) {
+      try {
+        await signInWithPopup(auth, new GoogleAuthProvider());
+      } catch (err) {
+        setToast("Please sign in to save to cloud");
+        return;
+      }
+    }
+    
+    try {
+      await addDoc(collection(db, 'cartridges'), {
+        name: cartMeta.name,
+        description: cartMeta.description,
+        luaCode: generateFullLuaCode(),
+        ownerId: auth.currentUser?.uid,
+        createdAt: serverTimestamp()
+      });
+      setToast("Saved to Cloud!");
+    } catch (err: any) {
+      setToast(`Error saving: ${err.message}`);
+    }
+  };
+
   const removeResource = (index: number) => {
     setResources(prev => prev.filter((_, i) => i !== index));
   };
@@ -226,7 +255,7 @@ export default function WherigoApp() {
       const url = URL.createObjectURL(content);
       const link = document.createElement('a');
       link.href = url;
-      link.download = `${cartridgeState?.name || "cartridge"}.gwz`;
+      link.download = `${cartMeta.name || "cartridge"}.gwz`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -237,6 +266,11 @@ export default function WherigoApp() {
     } catch (err: any) {
       setLogs(prev => [...prev, `ERROR saving cartridge: ${err.message}`]);
     }
+  };
+
+  const handleOpenInCGeo = async () => {
+    await handleSaveCartridge();
+    setToast("Opening in c:geo...");
   };
 
   return (
@@ -254,7 +288,22 @@ export default function WherigoApp() {
             </div>
           </div>
           
-          <div className="flex items-center gap-2 bg-zinc-800 p-1 rounded-lg">
+          <div className="flex items-center gap-2">
+            <button 
+              onClick={handleSaveToCloud}
+              className="p-2 text-zinc-400 hover:text-indigo-400 transition-colors"
+              title="Save to Cloud"
+            >
+              <Cloud className="w-5 h-5" />
+            </button>
+            <button 
+              onClick={handleOpenInCGeo}
+              className="p-2 text-zinc-400 hover:text-emerald-400 transition-colors"
+              title="Open in c:geo"
+            >
+              <Smartphone className="w-5 h-5" />
+            </button>
+            <div className="flex items-center gap-2 bg-zinc-800 p-1 rounded-lg">
             <button 
               onClick={() => setMode('editor')}
               className={cn(
@@ -277,7 +326,8 @@ export default function WherigoApp() {
             </button>
           </div>
         </div>
-      </header>
+      </div>
+    </header>
 
       <main className="max-w-4xl mx-auto p-4 md:p-6">
         <AnimatePresence>

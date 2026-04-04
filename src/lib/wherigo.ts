@@ -1,6 +1,6 @@
 import { LuaFactory, LuaEngine } from 'wasmoon';
 import wherigoApiLua from './sample._cartridge.lua?raw';
-import { Cartridge, Zone, Task, Timer, Thing, Player, ZonePoint } from './openwig';
+import { Cartridge, Zone, Task, Timer, Thing, Player, ZonePoint, Action, Media, Container } from './openwig';
 
 export class WherigoEngine {
   private lua: LuaEngine | null = null;
@@ -44,7 +44,10 @@ export class WherigoEngine {
             Timer: Timer,
             Thing: Thing,
             Player: Player,
-            ZonePoint: ZonePoint
+            ZonePoint: ZonePoint,
+            Action: Action,
+            Media: Media,
+            Container: Container
           }
         }
       }
