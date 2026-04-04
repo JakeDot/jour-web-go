@@ -1,0 +1,3 @@
+[submodule "jourwigo-java"]
+	path = jourwigo-java
+	url = https://github.com/JakeDot/jourwigo.git
