@@ -32,7 +32,7 @@ import {
   Heart,
   Trophy
 } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence } from 'motion/react';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 import defaultLogicLua from '../lib/default-logic.lua?raw';
